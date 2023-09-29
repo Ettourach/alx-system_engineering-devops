@@ -1,2 +1,20 @@
 #!/bin/bash
-cp -u *.html ..
+
+# Define source and destination directories
+source_dir=$(pwd)
+destination_dir=$(dirname "$source_dir")
+
+# Loop through HTML files in the source directory
+for file in "$source_dir"/*.html; do
+    filename=$(basename "$file")
+    destination="$destination_dir/$filename"
+
+    # Check if the file doesn't exist in the destination directory or is newer
+    if [ ! -e "$destination" ] || [ "$file" -nt "$destination" ]; then
+        cp "$file" "$destination"
+        echo "Copied $filename to $destination"
+    else
+        echo "$filename already exists and is up to date in $destination_dir"
+    fi
+done
+
