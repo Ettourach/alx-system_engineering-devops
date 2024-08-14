@@ -1,16 +1,42 @@
 #!/usr/bin/python3
 """Function to query subscribers on a given Reddit subreddit."""
 import requests
+import sys
 
 
 def number_of_subscribers(subreddit):
-    """Return the total number of subscribers on a given subreddit."""
-    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
+    url = f"https://www.reddit.com/r/{subreddit}/about.json"
     headers = {
-        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
+        'User-Agent': (
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+            'AppleWebKit/537.36 (KHTML, like Gecko) '
+            'Chrome/91.0.4472.124 Safari/537.36'
+        ),
+        'Accept': 'application/json',
+        'Connection': 'keep-alive'
     }
-    response = requests.get(url, headers=headers, allow_redirects=False)
-    if response.status_code == 404:
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Error fetching data from Reddit API: {e}")
         return 0
-    results = response.json().get("data")
-    return results.get("subscribers")
+
+    try:
+        # Attempt to parse the JSON response
+        data = response.json().get("data")
+        if data is None:
+            return 0
+        return data.get("subscribers", 0)
+    except ValueError:
+        # Handle the case where the response is not JSON
+        print("Error: Received an invalid JSON response")
+        return 0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        print("{:d}".format(number_of_subscribers(sys.argv[1])))
+    else:
+        print("Please provide a subreddit name.")
