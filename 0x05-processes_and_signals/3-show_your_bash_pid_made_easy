@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# bash script to displing the PID by using pgrep not grep 
+pgrep -l "bash"
